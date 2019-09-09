@@ -4,6 +4,8 @@ import re
 import numpy as np
 regex=re.compile('[%s]' % re.escape('[\s+\.\!\/_,$%^*(+\"\'“”’‘]+|[+——！，-。╮╯◇？、· 【〜～~@#￥%……&*（）]+?✌😉'))
 
+TEA = []
+
 
 def getEFTF(document):
     # 将所有文本看成一个整体的文档
@@ -75,7 +77,6 @@ def get_current_EFTFIDF():
 
 def getTEAandEV():
     TF_IDF = get_current_EFTFIDF()
-    TEA = []
     all_list = []
     EV = {}
 
@@ -101,11 +102,20 @@ def getTEAandEV():
 
 def isRWDM():
     TEA, EV = getTEAandEV()
-    word_EVMA = {}
+
     TEVMA = TEA
+    tea_len = 0
+    if len(TEA) >= 3:
+        TEVMA = TEA[-1] + TEA[-2] + TEA[-3]
+        tea_len = 3
+    else:
+        for i in range(len(TEA)):
+            tea_len += 1
+            TEVMA += TEA[i]
+    TEVMA = TEVMA / tea_len
+
     EVMA = 0
     evma_len = 0
-
     last_rwdm_and_value = []
     for key in EV.keys():
         if len(EV[key]) >= 3:
@@ -122,7 +132,6 @@ def isRWDM():
             last_rwdm_and_value.append(res)
 
     return last_rwdm_and_value
-
 
 if __name__ == '__main__':
     last_rwdm_and_value = isRWDM()
