@@ -51,16 +51,16 @@ def get_current_EFTFIDF():
     for line in file:
         content = regex.sub("", line.replace('\n', ''))
         after_cut = ' '.join(jieba.cut(content))
-        print(after_cut)
+
         document += after_cut + ' '
         line_list = after_cut.split(' ')
-        print(line_list)
+
         weibo_list.append(line_list)
-    print(weibo_list)
+
     TF = getEFTF(document)
     IDF = getEFIDF(weibo_list)
-    print('TF', TF)
-    print('IDF', IDF)
+
+
 
     for i, line in enumerate(IDF):
         for j, word in enumerate(line):
@@ -70,21 +70,65 @@ def get_current_EFTFIDF():
             IDF[i][j] = {index: word[index] * TF[index]}
 
     TF_IDF = IDF
+    return TF_IDF
 
-def getTEAandEV(TF_IDF):
-    TEA = set()
+
+def getTEAandEV():
+    TF_IDF = get_current_EFTFIDF()
+    TEA = []
     all_list = []
+    EV = {}
+
     for line in TF_IDF:
         for word_dict in line:
+            # print(line)
             for key in word_dict.keys():
+
+                if key in EV.keys():
+                    # print(EV[key])
+                    now_list = EV[key]
+                    now_list.append(word_dict[key])
+                    EV[key] = now_list
+                else:
+                    evlist = [word_dict[key]]
+                    EV[key] = evlist
                 all_list.append(word_dict[key])
 
-    TEA.add(np.mean(all_list))
+    TEA.append(np.mean(all_list))
 
+    return TEA, EV
+
+
+def isRWDM():
+    TEA, EV = getTEAandEV()
+    word_EVMA = {}
+    TEVMA = TEA
+    EVMA = 0
+    evma_len = 0
+
+    last_rwdm_and_value = []
+    for key in EV.keys():
+        if len(EV[key]) >= 3:
+            EV_list = EV[key]
+            EVMA = EV_list[-1] + EV_list[-2] + EV_list[-3]
+            evma_len = 3
+        else:
+            for i in range(len(EV[key])):
+                evma_len += 1
+                EVMA += EV[key][i]
+        EVMA = EVMA / evma_len
+        if EVMA > TEVMA[0]:
+            res = [key, EVMA]
+            last_rwdm_and_value.append(res)
+
+    return last_rwdm_and_value
 
 
 if __name__ == '__main__':
-    get_current_EFTFIDF()
+    last_rwdm_and_value = isRWDM()
+    print(sorted(last_rwdm_and_value, key=(lambda x: x[1])))
+    # getTEAandEV()
+    # get_current_EFTFIDF()
     # string = '香农在信息论中提出的信息熵定义为自信息的期望'
     #
     # result = ' '.join(jieba.cut(string))
