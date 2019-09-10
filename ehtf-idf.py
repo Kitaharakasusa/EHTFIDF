@@ -47,26 +47,28 @@ def getEFIDF(document):
 
 
 def get_current_EFTFIDF():
-    file = open('test.txt', 'r', encoding='utf-8')
+    file = open('cont.txt', 'r', encoding='utf-8')
     document = ''
     weibo_list = []
     for line in file:
-        content = regex.sub("", line.replace('\n', ''))
-        after_cut = ' '.join(jieba.cut(content))
-
-        document += after_cut + ' '
-        line_list = after_cut.split(' ')
-
-        weibo_list.append(line_list)
-
+        if line != '\n':
+            content = regex.sub("", line.replace('\n', ''))
+            after_cut = ' '.join(jieba.cut(content))
+            document += after_cut + ' '
+            line_list = after_cut.split(' ')
+            print(line_list)
+            weibo_list.append(line_list)
+    # print(document)
+    # print(weibo_list)
+    print('start get EFTF')
     TF = getEFTF(document)
+    print('start get EFIDF')
     IDF = getEFIDF(weibo_list)
-
+    print('idf finish')
 
 
     for i, line in enumerate(IDF):
         for j, word in enumerate(line):
-            pass
             # print(word.keys())
             index = list(word.keys())[0]
             IDF[i][j] = {index: word[index] * TF[index]}
@@ -132,6 +134,7 @@ def isRWDM():
             last_rwdm_and_value.append(res)
 
     return last_rwdm_and_value
+
 
 if __name__ == '__main__':
     last_rwdm_and_value = isRWDM()
