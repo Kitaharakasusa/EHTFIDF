@@ -31,13 +31,22 @@ def getEFIDF(document):
             newline.append(word)
         newlist.append(newline)
 
+    to_now_word_nums = {}
+
     for i, sentence in enumerate(weibo_list):
         for j, key in enumerate(sentence):
             NPD = 0
-            for k in range(0, i):
-                for word in weibo_list[k]:
-                    if word == key:
-                        NPD += 1
+            if key in to_now_word_nums.keys():
+                NPD += to_now_word_nums[key]
+                nums = to_now_word_nums[key]
+                to_now_word_nums[key] = nums+1
+            else:
+                to_now_word_nums[key] = 1
+            # for k in range(0, i):
+            #     for word in weibo_list[k]:
+            #         if word in to_now_word_nums.keys():
+            #         if word == key:
+            #             NPD += 1
             TNPD = i
             if NPD == 0:
                 NPD = 1
